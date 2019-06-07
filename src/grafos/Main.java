@@ -33,14 +33,14 @@ public class Main {
 			
 			int quantProf = 0;
 			Scanner sc = new Scanner(System.in);
-			System.out.print("Informe quantos professores estão disponíveis: ");
+			System.out.print("Informe quantos professores estao disponaveis: ");
 			quantProf = sc.nextInt();
 			if(quantProf > quantAlunos) {
 				sc.close();
-				throw new Exception("Não pode haver mais professores do que alunos");
+				throw new Exception("Nao pode haver mais professores do que alunos");
 			}
 				
-			for(int l = 0; l < quantProf; l++) {
+			for(int l = 0; l < quantProf - 1 ; l++) {
 				Integer x = 0, y = 0, max = -1;
 				for(int i = 0; i < grafoPrim.length; i++) {
 					for(int k = 0; k < grafoPrim.length; k++) {
@@ -52,16 +52,42 @@ public class Main {
 					}
 				}
 				grafoPrim[x][y] = null;
+				grafoPrim[y][x] = null;
 			}
+
+			Boolean[] alreadyPrint = new Boolean[quantAlunos];
 			
+			Integer initialVertice = 0;
 			
+			for(int i = 0; i < quantProf; i ++){
+				alreadyPrint[initialVertice] = true;
+				System.out.println("Professor: "+ (i+1));
+				dfs(grafoPrim, initialVertice, alreadyPrint, alunoArea);
+				for(int b = 0; b < alreadyPrint.length; b++){
+					if(alreadyPrint[b] == null){
+						initialVertice = b;
+						break;
+					}
+				}
+			}
 			sc.close();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 		
 	}
-	
+
+	static void dfs(String[][] grafo, int vertex, Boolean[] visited, ArrayList<String[]> alunoArea) {
+
+		System.out.println("\tAluno:" + (vertex + 1) + ", Grupo: "+alunoArea.get(vertex)[1]);
+
+		for (int j = 0; j < grafo[vertex].length; j++)
+			if (grafo[vertex][j] != null && visited[j] == null) {
+				visited[j] = true;
+				dfs(grafo, j, visited, alunoArea);
+            }
+    }
+
 	private static ArrayList<String[]> readAlunoAreaFile(){
 		ArrayList<String[]> alunoArea = new ArrayList<String[]>();
 		try(BufferedReader br = new BufferedReader(new FileReader("mocks\\alunoArea.txt"))) {
@@ -160,13 +186,10 @@ public class Main {
         }  
 
  	   String[][] grafoPrim = new String[vertices][vertices];
-       for (i = 1; i < vertices; i++) {
-    	   if( i < parent[i]) {
-        	   grafoPrim[i][parent[i]] = g[i][parent[i]].toString();
-    	   }else {
-    		   grafoPrim[parent[i]][i] = g[i][parent[i]].toString();
-    	   }
-       } 
+		for (i = 1; i < vertices; i++) {
+				grafoPrim[i][parent[i]] = g[i][parent[i]].toString();
+				grafoPrim[parent[i]][i] = g[i][parent[i]].toString();
+		} 
        return grafoPrim;
     } 
     
