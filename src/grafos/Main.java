@@ -25,12 +25,10 @@ public class Main {
 						dissimilaridadeMaterias = Integer.parseInt(dissimilaridade[materiaColuna][materiaLinha]);
 					}
 					grafo[i][k] = dissimilaridadeMaterias;
-					 
 				}
 			}
 			
 			String[][] grafoPrim = primMST(grafo, quantAlunos);
-			
 			int quantProf = 0;
 			Scanner sc = new Scanner(System.in);
 			System.out.print("Informe quantos professores estao disponaveis: ");
@@ -40,6 +38,7 @@ public class Main {
 				throw new Exception("Nao pode haver mais professores do que alunos");
 			}
 				
+			// Corte das arestas de maior dissimilaridade
 			for(int l = 0; l < quantProf - 1 ; l++) {
 				Integer x = 0, y = 0, max = -1;
 				for(int i = 0; i < grafoPrim.length; i++) {
@@ -56,9 +55,10 @@ public class Main {
 			}
 
 			Boolean[] alreadyPrint = new Boolean[quantAlunos];
-			
 			Integer initialVertice = 0;
 			
+			// Realiza uma busca de profundidade para cada professor,
+			// sendo que um professor deve ter pelo menos um aluno em seu grupo
 			for(int i = 0; i < quantProf; i ++){
 				alreadyPrint[initialVertice] = true;
 				System.out.println("Professor: "+ (i+1));
@@ -77,6 +77,13 @@ public class Main {
 		
 	}
 
+	/**
+	 * Função responsável por realizar a busca em profundidade do grafo desconexo
+	 * @param grafo
+	 * @param vertex
+	 * @param visited
+	 * @param alunoArea
+	 */
 	static void dfs(String[][] grafo, int vertex, Boolean[] visited, ArrayList<String[]> alunoArea) {
 
 		System.out.println("\tAluno:" + (vertex + 1) + ", Grupo: "+alunoArea.get(vertex)[1]);
@@ -88,6 +95,10 @@ public class Main {
             }
     }
 
+	/**
+	 * Função responsável por ler o arquivo de relação entre aluno-grupo
+	 * @return
+	 */
 	private static ArrayList<String[]> readAlunoAreaFile(){
 		ArrayList<String[]> alunoArea = new ArrayList<String[]>();
 		try(BufferedReader br = new BufferedReader(new FileReader("mocks\\alunoArea.txt"))) {
@@ -108,7 +119,12 @@ public class Main {
 		}
 		return alunoArea;
 	}
-	
+
+	/**
+	 * Função responsável por ler o arquivo de dissimilaridade entre os grupos
+	 * @return
+	 * @throws IOException
+	 */
 	private static String[][] readDissimilaridadeFile() throws IOException{
 		String filePath = "mocks\\dissimilaridade.txt";
 		int lines = getFileLines(filePath);
@@ -137,6 +153,12 @@ public class Main {
 		return matrizDiss;
 	}
 	
+	/**
+	 * Função responsável por contar quantas linhas o arquivo de texto tem.
+	 * @param filePath
+	 * @return
+	 * @throws IOException
+	 */
 	private static int getFileLines(String filePath) throws IOException {
 		try {
 			BufferedReader reader;
@@ -152,9 +174,12 @@ public class Main {
 		return 0;
 	} 
   
-    // Function to construct and 
-    // print MST for a graph represented 
-    // using adjacency matrix representation 
+    /**
+	 * Função que retorna o grafo com o algorítmo de prim aplicado.
+	 * @param g
+	 * @param vertices
+	 * @return
+	 */ 
     static String[][] primMST(Integer[][] g, Integer vertices) 
     { 
     	Integer[] parent = new Integer[vertices];   
@@ -165,24 +190,19 @@ public class Main {
         	k[i] = 9999;
         	mst[i] = 0;
         }
-             
       
         k[0] = 0;       
         parent[0] = -1;   
       
-        for (count = 0; count < vertices-1; count++)  
-        {  
-        
-           u = minimum_key(k, mst, vertices);  
-         mst[u] = 1;  
-      
+        for (count = 0; count < vertices-1; count++){  
+			u = minimum_key(k, mst, vertices);  
+			mst[u] = 1;  
            for (v = 0; v < vertices; v++)  
       
-             if (g[u][v] != null && mst[v] == 0 && g[u][v] <  k[v])  {
-            	 parent[v]  = u;
-            	 k[v] = g[u][v];  
-             }
-                
+			if (g[u][v] != null && mst[v] == 0 && g[u][v] <  k[v])  {
+				parent[v]  = u;
+				k[v] = g[u][v];  
+			}
         }  
 
  	   String[][] grafoPrim = new String[vertices][vertices];
@@ -196,16 +216,12 @@ public class Main {
     static int minimum_key(Integer k[], Integer mst[], Integer vertices)  
     {  
        int minimum  = 99999, min = 0,i;  
-       
-       for (i = 0; i < vertices; i++)  
-         if (mst[i] == 0 && k[i] < minimum ) {
-        	 minimum  = k[i];
-        	 min = i;  
-         }
-             
-       
+		for (i = 0; i < vertices; i++) {
+			if (mst[i] == 0 && k[i] < minimum ) {
+				minimum  = k[i];
+				min = i;  
+			}
+		}
        return min;  
     }
-    
-
 }
