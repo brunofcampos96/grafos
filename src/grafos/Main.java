@@ -9,36 +9,57 @@ import java.util.Scanner;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		ArrayList<String[]> alunoArea = readAlunoAreaFile();
-		int quantAlunos = alunoArea.size();
-		String[][] dissimilaridade = readDissimilaridadeFile();
-		Integer[][] grafo = new Integer[quantAlunos][quantAlunos];
-		for(int i = 0; i < quantAlunos; i++) {
-			int materiaLinha = Integer.parseInt(alunoArea.get(i)[1]) -1 ;
-			for(int k = 0; k < quantAlunos; k ++) {
-				Integer dissimilaridadeMaterias = 0;
-				int materiaColuna = Integer.parseInt(alunoArea.get(k)[1]) - 1;
-				if(materiaLinha < materiaColuna) {
-					dissimilaridadeMaterias = Integer.parseInt(dissimilaridade[materiaLinha][materiaColuna]);
-				}else {
-					dissimilaridadeMaterias = Integer.parseInt(dissimilaridade[materiaColuna][materiaLinha]);
+		try {
+			ArrayList<String[]> alunoArea = readAlunoAreaFile();
+			int quantAlunos = alunoArea.size();
+			String[][] dissimilaridade = readDissimilaridadeFile();
+			Integer[][] grafo = new Integer[quantAlunos][quantAlunos];
+			for(int i = 0; i < quantAlunos; i++) {
+				int materiaLinha = Integer.parseInt(alunoArea.get(i)[1]) -1 ;
+				for(int k = 0; k < quantAlunos; k ++) {
+					Integer dissimilaridadeMaterias = 0;
+					int materiaColuna = Integer.parseInt(alunoArea.get(k)[1]) - 1;
+					if(materiaLinha < materiaColuna) {
+						dissimilaridadeMaterias = Integer.parseInt(dissimilaridade[materiaLinha][materiaColuna]);
+					}else {
+						dissimilaridadeMaterias = Integer.parseInt(dissimilaridade[materiaColuna][materiaLinha]);
+					}
+					grafo[i][k] = dissimilaridadeMaterias;
+					 
 				}
-				grafo[i][k] = dissimilaridadeMaterias;
-				 
 			}
+			
+			String[][] grafoPrim = primMST(grafo, quantAlunos);
+			
+			int quantProf = 0;
+			Scanner sc = new Scanner(System.in);
+			System.out.print("Informe quantos professores estão disponíveis: ");
+			quantProf = sc.nextInt();
+			if(quantProf > quantAlunos) {
+				sc.close();
+				throw new Exception("Não pode haver mais professores do que alunos");
+			}
+				
+			for(int l = 0; l < quantProf; l++) {
+				Integer x = 0, y = 0, max = -1;
+				for(int i = 0; i < grafoPrim.length; i++) {
+					for(int k = 0; k < grafoPrim.length; k++) {
+						if(grafoPrim[i][k] != null && Integer.parseInt(grafoPrim[i][k]) > max) {
+							max = Integer.parseInt(grafoPrim[i][k]);
+							x = i;
+							y = k;
+						}
+					}
+				}
+				grafoPrim[x][y] = null;
+			}
+			
+			
+			sc.close();
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
-		primMST(grafo, quantAlunos);
 		
-//        Prims prims = new Prims(quantAlunos);
-//
-//        prims.primsAlgorithm(grafo);
-//
-//        prims.printMST();
-		int quantProf = 0;
-		Scanner sc = new Scanner(System.in);
-		System.out.print("Informe quantos professores estão disponíveis: ");
-		quantProf = sc.nextInt();
-		sc.close();
 	}
 	
 	private static ArrayList<String[]> readAlunoAreaFile(){
@@ -108,7 +129,7 @@ public class Main {
     // Function to construct and 
     // print MST for a graph represented 
     // using adjacency matrix representation 
-    static void primMST(Integer[][] g, Integer vertices) 
+    static String[][] primMST(Integer[][] g, Integer vertices) 
     { 
     	Integer[] parent = new Integer[vertices];   
     	Integer[] k = new Integer[vertices];     
@@ -137,10 +158,16 @@ public class Main {
              }
                 
         }  
-      
+
+ 	   String[][] grafoPrim = new String[vertices][vertices];
        for (i = 1; i < vertices; i++) {
-    	   System.out.println(" " + (parent[i] + 1) + " " + (i + 1) + " " + g[i][parent[i]]);
+    	   if( i < parent[i]) {
+        	   grafoPrim[i][parent[i]] = g[i][parent[i]].toString();
+    	   }else {
+    		   grafoPrim[parent[i]][i] = g[i][parent[i]].toString();
+    	   }
        } 
+       return grafoPrim;
     } 
     
     static int minimum_key(Integer k[], Integer mst[], Integer vertices)  
